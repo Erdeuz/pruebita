@@ -3,115 +3,33 @@ importar { obtenerJson } desde "https://desarrollo-aplicaciones.vercel.app/2024/
 importar { validarSecreto } desde "https://desarrollo-aplicaciones.vercel.app/2024/code/validar-secreto.js"
 importar { calcularProximoFeriado } desde "https://desarrollo-aplicaciones.vercel.app/2024/code/calcular-proximo-feriado.js"
 importar { tiza } desde "@es-js/tiza"
+importar figlet from "https://cdn.skypack.dev/figlet"  // figlet para browser
 
-async function fetchGatitoUrl() {
-  // Usamos TheCatAPI como ejemplo; si la API requiere key, incluir en headers.
-  const endpoint = 'https://api.thecatapi.com/v1/images/search'
-  const resp = await fetch(endpoint)
-  if (!resp.ok) throw new Error(`Error al obtener URL de gatito: ${resp.status}`)
-  const data = await resp.json()
-  if (!Array.isArray(data) || data.length === 0 || !data[0].url) {
-    throw new Error("Respuesta inesperada de la API de gatos")
-  }
-  return data[0].url
-}
-
-async function fetchImageAsBlob(url) {
-  const resp = await fetch(url)
-  if (!resp.ok) throw new Error(`Error al descargar imagen: ${resp.status}`)
-  return await resp.blob()
-}
-
-async function convertirBlobAAscii(blob, anchoASCII = 60) {
+async function mostrarTextoFiglet(texto) {
   return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.crossOrigin = "Anonymous"
-    img.onload = () => {
-      // Mantener proporción: calculamos alto en caracteres (factor 0.5 compensa alto de carácter vs ancho)
-      const ratio = img.height / img.width
-      const altoASCII = Math.round(anchoASCII * ratio * 0.5)
-      // Crear canvas temporal
-      const canvas = document.createElement('canvas')
-      canvas.width = anchoASCII
-      canvas.height = altoASCII
-      const ctx = canvas.getContext('2d')
-      // Dibujar la imagen escalada
-      ctx.drawImage(img, 0, 0, anchoASCII, altoASCII)
-      const imgData = ctx.getImageData(0, 0, anchoASCII, altoASCII).data
-      const chars = "@%#*+=-:. "  // de oscuro (@) a claro (espacio)
-      let ascii = ""
-      for (let y = 0; y < altoASCII; y++) {
-        let linea = ""
-        for (let x = 0; x < anchoASCII; x++) {
-          const idx = (y * anchoASCII + x) * 4
-          const r = imgData[idx], g = imgData[idx+1], b = imgData[idx+2]
-          // brillo promedio
-          const brillo = (r + g + b) / 3
-          // mapear 0..255 al índice en chars
-          const charIdx = Math.floor((brillo / 255) * (chars.length - 1))
-          linea += chars.charAt(charIdx)
-        }
-        ascii += linea + "\n"
-      }
-      resolve(ascii)
-    }
-    img.onerror = () => reject(new Error("No se pudo cargar la imagen para ASCII"))
-    const urlBlob = URL.createObjectURL(blob)
-    img.src = urlBlob
+    figlet(texto, (err, data) => {
+      if (err) return reject(err)
+      resolve(data)
+    })
   })
 }
 
 async function mostrarGatitoAscii() {
   Terminal.limpiar()
   Terminal.escribir("")
-  Terminal.escribir(tiza.cursiva("Obteniendo un gatito para ASCII..."))
+  Terminal.escribir(tiza.cursiva("Generando texto en arte ASCII..."))
   try {
-    const url = await fetchGatitoUrl()
-    Terminal.escribir("URL de gatito: " + tiza.subrayado(url))
-    Terminal.escribir("Descargando imagen...")
-    const blob = await fetchImageAsBlob(url)
-    Terminal.escribir("Convirtiendo a ASCII (puede tardar)...")
-    // Ajusta anchoASCII según el ancho de tu terminal; 60 es un punto de partida.
-    const ascii = await convertirBlobAAscii(blob, 60)
+    const ascii = await mostrarTextoFiglet("Gatito!")
     Terminal.limpiar()
-    // Imprimir ASCII línea a línea
-    ascii.split("\n").forEach(linea => {
-      // Para líneas vacías al final, evitamos impresión innecesaria
-      if (linea.length > 0) Terminal.escribir(linea)
-      else Terminal.escribir("") 
-    })
+    ascii.split("\n").forEach(linea => Terminal.escribir(tiza.amarillo(linea)))
     Terminal.escribir("")
     Terminal.escribir(tiza.amarillo("Fin del arte ASCII. Presiona ENTER para continuar..."))
     await Terminal.leerEnter("")
   } catch (err) {
-    Terminal.escribir(tiza.fondoRojo("Error en mostrarGatitoAscii: " + err.message))
+    Terminal.escribir(tiza.fondoRojo("Error al generar arte ASCII: " + err.message))
     Terminal.escribir("Presiona ENTER para continuar...")
     await Terminal.leerEnter("")
   }
-}
-
-async function inicio() {
-  Terminal.limpiar()
-  Terminal.escribir("")
-  Terminal.escribir(tiza.fondoAzul.cursiva.negrita("Por favor, ingrese la Palabra secreta :) "))
-  const secreto = await Terminal.leer()
-  const dni = "33145119" // tu DNI
-  if (await validarSecreto(dni, secreto)) {
-    await mostrarProximoFeriado()
-    // Nueva sección: preguntar si quiere ver gatito ASCII
-    Terminal.escribir("")
-    Terminal.escribir(tiza.verde("¿Querés ver un gatito en ASCII? (S/N)"))
-    const opc = await Terminal.leer()
-    if (opc.trim().toLowerCase().startsWith('s')) {
-      await mostrarGatitoAscii()
-    }
-  } else {
-    Terminal.escribir("Palabra secreta inválida")
-    Terminal.escribir("Presiona ENTER para volver a intentar")
-    await Terminal.leerEnter("")
-  }
-  // Volver a inicio
-  inicio()
 }
 
 async function mostrarProximoFeriado() {
@@ -135,6 +53,28 @@ async function mostrarProximoFeriado() {
     Terminal.escribir("Presiona ENTER para continuar...")
     await Terminal.leerEnter("")
   }
+}
+
+async function inicio() {
+  Terminal.limpiar()
+  Terminal.escribir("")
+  Terminal.escribir(tiza.fondoAzul.cursiva.negrita("Por favor, ingrese la Palabra secreta :) "))
+  const secreto = await Terminal.leer()
+  const dni = "33145119"
+  if (await validarSecreto(dni, secreto)) {
+    await mostrarProximoFeriado()
+    Terminal.escribir("")
+    Terminal.escribir(tiza.verde("¿Querés ver arte ASCII con figlet? (S/N)"))
+    const opc = await Terminal.leer()
+    if (opc.trim().toLowerCase().startsWith('s')) {
+      await mostrarGatitoAscii()
+    }
+  } else {
+    Terminal.escribir("Palabra secreta inválida")
+    Terminal.escribir("Presiona ENTER para volver a intentar")
+    await Terminal.leerEnter("")
+  }
+  inicio()
 }
 
 inicio()
