@@ -43,7 +43,7 @@ const barmanAscii = `
 async function mostrarBarmanAscii() {
   Terminal.limpiar()
   Terminal.escribir("")
-  Terminal.escribir(tiza.cursiva("Mostrando al barman en ASCII..."))
+  Terminal.escribir(tiza.cursiva.negrita("Yo soy BATMAN!"))
   Terminal.escribir("")
   barmanAscii.split("\n").forEach(linea => Terminal.escribir(tiza.amarillo(linea)))
   Terminal.escribir("")
