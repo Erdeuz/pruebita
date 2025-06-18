@@ -3,33 +3,52 @@ importar { obtenerJson } desde "https://desarrollo-aplicaciones.vercel.app/2024/
 importar { validarSecreto } desde "https://desarrollo-aplicaciones.vercel.app/2024/code/validar-secreto.js"
 importar { calcularProximoFeriado } desde "https://desarrollo-aplicaciones.vercel.app/2024/code/calcular-proximo-feriado.js"
 importar { tiza } desde "@es-js/tiza"
-importar figlet from "https://cdn.skypack.dev/figlet"  // figlet para browser
 
-async function mostrarTextoFiglet(texto) {
-  return new Promise((resolve, reject) => {
-    figlet(texto, (err, data) => {
-      if (err) return reject(err)
-      resolve(data)
-    })
-  })
-}
+const barmanAscii = `
+┼┼┼┼┼┼┼┼┼┼┼▒█┼┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼███┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼┼┼███┼┼┼┼┼┼┼┼┼┼██▒█┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼┼▒███┼┼┼┼┼┼┼┼┼┼█┼██┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼┼█┼▒█┼┼┼┼┼┼┼┼┼██┼██┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼▒█┼▒█┼▒▒▒▒▒┼┼┼█┼┼██┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼█┼┼████████████┼┼▒█┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼█▒██▒▒┼┼┼┼┼┼┼█┼┼┼▒█┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼▒█████████▒┼┼▒█┼┼┼▒█┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼██▒▒┼┼┼┼┼▒██┼█▒┼┼┼┼█┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼███┼┼┼┼┼█┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼▒█┼┼┼┼┼┼┼┼┼┼┼┼██┼┼┼┼┼█▒┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼███┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼███┼┼┼┼┼┼▒██▒█▒┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼▒█▒███┼┼▒██▒┼██┼┼┼┼┼┼┼█┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼█▒████┼┼██▒▒██┼███┼┼┼┼█┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼████┼┼┼┼┼▒██████▒█┼┼┼┼█▒┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼█▒▒██▒▒███▒▒▒┼┼┼┼█┼┼┼┼██┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼██┼┼┼██▒┼┼┼┼▒▒┼┼▒█┼┼┼┼▒█┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼▒█┼┼┼┼┼┼┼┼┼┼┼▒┼┼▒█┼┼┼┼┼█┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼▒█┼┼▒█████▒┼┼┼┼┼▒█┼┼┼┼┼█┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼█┼┼┼┼┼┼┼┼┼┼┼┼┼┼▒█┼┼┼┼┼██┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼█▒┼┼┼┼┼┼┼┼┼┼┼┼┼██┼█▒┼┼┼██┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼██┼┼┼┼┼┼┼┼┼┼▒███┼┼█▒┼┼┼┼█┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼▒█████▒██████▒█▒┼┼█▒┼┼┼┼██┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼▒██▒▒▒▒▒▒┼┼┼█▒┼┼██┼┼┼┼┼██┼┼┼┼┼┼
+┼┼┼┼┼┼┼┼┼█▒┼┼┼┼┼┼┼┼┼█▒┼┼▒█┼┼┼┼┼┼██▒┼┼┼┼
+┼┼┼┼┼┼┼┼┼█┼┼┼┼┼┼┼┼┼┼█┼┼┼┼██┼┼┼┼┼┼┼███┼┼
+┼┼┼┼┼┼▒███┼┼┼┼┼┼┼┼┼██┼┼┼┼┼███▒┼┼▒█████┼
+┼┼┼┼████▒▒┼┼┼┼┼┼┼┼┼█┼┼┼┼┼┼┼▒█████▒▒┼┼┼┼
+┼┼┼┼██┼┼┼┼┼┼┼┼┼┼┼▒█▒┼▒▒██████▒┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼███▒┼┼┼┼┼┼┼██████████┼┼┼┼┼┼┼┼┼┼┼┼┼
+┼┼┼┼┼┼┼██████████████▒┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+`
 
-async function mostrarGatitoAscii() {
+async function mostrarBarmanAscii() {
   Terminal.limpiar()
   Terminal.escribir("")
-  Terminal.escribir(tiza.cursiva("Generando texto en arte ASCII..."))
-  try {
-    const ascii = await mostrarTextoFiglet("Gatito!")
-    Terminal.limpiar()
-    ascii.split("\n").forEach(linea => Terminal.escribir(tiza.amarillo(linea)))
-    Terminal.escribir("")
-    Terminal.escribir(tiza.amarillo("Fin del arte ASCII. Presiona ENTER para continuar..."))
-    await Terminal.leerEnter("")
-  } catch (err) {
-    Terminal.escribir(tiza.fondoRojo("Error al generar arte ASCII: " + err.message))
-    Terminal.escribir("Presiona ENTER para continuar...")
-    await Terminal.leerEnter("")
-  }
+  Terminal.escribir(tiza.cursiva("Mostrando al barman en ASCII..."))
+  Terminal.escribir("")
+  barmanAscii.split("\n").forEach(linea => Terminal.escribir(tiza.amarillo(linea)))
+  Terminal.escribir("")
+  Terminal.escribir(tiza.verde("Presiona ENTER para continuar..."))
+  await Terminal.leerEnter("")
 }
 
 async function mostrarProximoFeriado() {
@@ -64,10 +83,10 @@ async function inicio() {
   if (await validarSecreto(dni, secreto)) {
     await mostrarProximoFeriado()
     Terminal.escribir("")
-    Terminal.escribir(tiza.verde("¿Querés ver arte ASCII con figlet? (S/N)"))
+    Terminal.escribir(tiza.verde("¿Querés ver al barman en ASCII? (S/N)"))
     const opc = await Terminal.leer()
     if (opc.trim().toLowerCase().startsWith('s')) {
-      await mostrarGatitoAscii()
+      await mostrarBarmanAscii()
     }
   } else {
     Terminal.escribir("Palabra secreta inválida")
