@@ -67,7 +67,7 @@ async function mostrarGatitoAscii() {
   Terminal.escribir(tiza.cursiva("Obteniendo un gatito para ASCII..."))
   try {
     const url = await fetchGatitoUrl()
-    Terminal.escribir("URL de gatito: " + tiza.underline(url))
+    Terminal.escribir("URL de gatito: " + tiza.subrayado(url))
     Terminal.escribir("Descargando imagen...")
     const blob = await fetchImageAsBlob(url)
     Terminal.escribir("Convirtiendo a ASCII (puede tardar)...")
