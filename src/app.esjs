@@ -83,7 +83,7 @@ async function inicio() {
   if (await validarSecreto(dni, secreto)) {
     await mostrarProximoFeriado()
     Terminal.escribir("")
-    Terminal.escribir(tiza.verde("¿Ale, queres ver un murcielago? -.-? (S/N)"))
+    Terminal.escribir(tiza.verde("         ¿Acaso quiere ver un murcielago?? (S/N)"))
     const opc = await Terminal.leer()
     if (opc.trim().toLowerCase().startsWith('s')) {
       await mostrarBarmanAscii()
