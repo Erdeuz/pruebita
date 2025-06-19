@@ -86,7 +86,7 @@ async function inicio() {
     Terminal.escribir(tiza.verde("         ¿Acaso quiere ver un murcielago?? (S/N)"))
     const opc = await Terminal.leer()
     if (opc.trim().toLowerCase().startsWith('s')) {
-      await mostrarBarmanAscii()
+      window.location.href = "https://graficos-igfz45fpo-erdeuzs-projects.vercel.app"//await mostrarBarmanAscii()
     }
   } else {
     Terminal.escribir("Palabra secreta inválida")
